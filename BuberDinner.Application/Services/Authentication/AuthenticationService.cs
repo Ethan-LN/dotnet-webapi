@@ -1,6 +1,6 @@
 namespace BuberDinner.Application.Services.Authentication;
 
-public class Authentication : IAuthenticationService
+public class AuthenticationService : IAuthenticationService
 {
   public AuthenticationResult Register(string firstname, string lastname, string email, string password)
   {
