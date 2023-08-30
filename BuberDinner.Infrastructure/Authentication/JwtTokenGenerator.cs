@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.VisualBasic;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using BuberDinner.Application.Common.Interfaces.Authentication;
@@ -8,7 +7,7 @@ using BuberDinner.Application.Common.Interfaces.Authentication;
 
 namespace BuberDinner.Infrastructure.Authentication;
 
-public class JwdTokenGenerator : IJwtTokenGenerator
+public class JwtTokenGenerator : IJwtTokenGenerator
 {
 
   public string GenerateToken(Guid userId, string firstName, string lastName)
@@ -16,7 +15,7 @@ public class JwdTokenGenerator : IJwtTokenGenerator
 
     var signingCredentials = new SigningCredentials(
         new SymmetricSecurityKey(
-          Encoding.UTF8.GetBytes("super-secret-key")),
+          Encoding.UTF8.GetBytes("this is my custom Secret key for authentication")),
           SecurityAlgorithms.HmacSha256);
     var claims = new[]
     {
@@ -30,7 +29,7 @@ public class JwdTokenGenerator : IJwtTokenGenerator
       issuer: "BuberDinner",
       expires: DateTime.Now.AddDays(1),
       claims: claims,
-      signingCredential: signingCredentials;
+      signingCredentials: signingCredentials
       );
 
     return new JwtSecurityTokenHandler().WriteToken(securityToken);
