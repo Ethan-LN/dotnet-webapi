@@ -1,5 +1,4 @@
 using System.Net;
-using System.Runtime.ExceptionServices;
 using System.Text.Json;
 
 namespace BuberDinner.Api.Middleware;
