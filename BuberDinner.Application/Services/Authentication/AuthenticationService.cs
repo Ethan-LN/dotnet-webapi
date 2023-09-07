@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using BuberDinner.Application.Common.Errors;
 using BuberDinner.Application.Common.Interfaces.Authentication;
 using BuberDinner.Application.Common.Interfaces.Persistence;
 using BuberDinner.Domain.Entities;
@@ -21,7 +22,7 @@ public class AuthenticationService : IAuthenticationService
     // 1. validate the user doesn't exit
     if (_userRepository.GetUserByEmail(email) is not null)
     {
-      throw new Exception("User with given email already exsits.");
+      throw new DuplicateEmailExcetion();
       // return new AuthenticationResult(false, "User already exists");
     }
 
