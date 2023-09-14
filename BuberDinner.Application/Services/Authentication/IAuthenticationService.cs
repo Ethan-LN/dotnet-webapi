@@ -1,4 +1,6 @@
-using System.ComponentModel.DataAnnotations;
+
+using BuberDinner.Application.Common.Errors;
+using OneOf;
 
 namespace BuberDinner.Application.Services.Authentication;
 
