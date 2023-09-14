@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using BuberDinner.Application.Common.Errors;
 using BuberDinner.Application.Common.Interfaces.Authentication;
 using BuberDinner.Application.Common.Interfaces.Persistence;
@@ -18,12 +17,12 @@ public class AuthenticationService : IAuthenticationService
     _userRepository = userRepository;
   }
 
-  public OneOf<AuthenticationResult, DuplicateEmailErrors> Register(string firstName, string lastName, string email, string password)
+  public AuthenticationResult Register(string firstName, string lastName, string email, string password)
   {
     // 1. validate the user doesn't exit
     if (_userRepository.GetUserByEmail(email) is not null)
     {
-      return new DuplicateEmailErrors();
+      throw new DuplicateEmailException();
     }
 
     // 2. Create user (generate unique ID) & Persist to DB
