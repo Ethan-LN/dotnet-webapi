@@ -1,6 +1,9 @@
+using BuberDinner.Application.Common.Errors;
 using BuberDinner.Application.Services.Authentication;
 using BuberDinner.Contracts.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using FluentResults;
+
 namespace BuberDinner.Api.Controllers;
 
 [ApiController]
@@ -17,19 +20,32 @@ public class AuthenticationController : ControllerBase
   [HttpPost("register")]
   public IActionResult Register(RegisterRequest request)
   {
-    var authResult = _authenticationService.Register(request.Firstname, request.Lastname, request.Email, request.Password);
+    Result<AuthenticationResult> registerResult = _authenticationService.Register(request.Firstname, request.Lastname, request.Email, request.Password);
 
-    var response = new AuthenticationResponse(
-      authResult.User.Id,
-      authResult.User.FirstName,
-      authResult.User.LastName,
-      authResult.User.Email,
-      authResult.Token
-    );
-    return Ok(response); 
-  }
+    if (registerResult.IsSuccess)
+    {
+      return Ok(MapAuthResult(registerResult.Value));
+    }
+    var fristError = registerResult.Errors[0];
+    if (fristError is DuplicateEmailError)
+    {
+      return Problem(statusCode: StatusCodes.Status409Conflict, title: "email already exists 05 -- from fluent results");
+    }
+    return Problem();
+    }
 
-  [HttpPost("login")]
+    private static AuthenticationResponse MapAuthResult(AuthenticationResult authResult)
+    {
+        return new AuthenticationResponse(
+          authResult.User.Id,
+          authResult.User.FirstName,
+          authResult.User.LastName,
+          authResult.User.Email,
+          authResult.Token
+      );
+    }
+
+    [HttpPost("login")]
   public IActionResult Login(LoginRequest request)
   {
     var authResult = _authenticationService.Login( request.Email, request.Password);
