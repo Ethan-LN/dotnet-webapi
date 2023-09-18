@@ -17,12 +17,12 @@ public class AuthenticationService : IAuthenticationService
     _userRepository = userRepository;
   }
 
-  public AuthenticationResult Register(string firstName, string lastName, string email, string password)
+  public OneOf<AuthenticationResult, DuplicateEmailError> Register(string firstName, string lastName, string email, string password)
   {
     // 1. validate the user doesn't exit
     if (_userRepository.GetUserByEmail(email) is not null)
     {
-      throw new DuplicateEmailException();
+      return new DuplicateEmailError();
     }
 
     // 2. Create user (generate unique ID) & Persist to DB
