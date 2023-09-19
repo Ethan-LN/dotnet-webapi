@@ -1,11 +1,8 @@
-
-using BuberDinner.Application.Common.Errors;
-using FluentResults;
-
+using ErrorOr;
 namespace BuberDinner.Application.Services.Authentication;
 
 public interface IAuthenticationService
 {
-  Result<AuthenticationResult> Register(string firstname, string lastname, string email, string password);
-  AuthenticationResult Login(string email, string password);
+  ErrorOr<AuthenticationResult> Register(string firstname, string lastname, string email, string password);
+  ErrorOr<AuthenticationResult> Login(string email, string password);
 }
