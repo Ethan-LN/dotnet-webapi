@@ -2,7 +2,7 @@ using BuberDinner.Application.Common.Errors;
 using BuberDinner.Application.Services.Authentication;
 using BuberDinner.Contracts.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using FluentResults;
+using ErrorOr;
 
 namespace BuberDinner.Api.Controllers;
 
@@ -20,35 +20,28 @@ public class AuthenticationController : ControllerBase
   [HttpPost("register")]
   public IActionResult Register(RegisterRequest request)
   {
-    Result<AuthenticationResult> registerResult = _authenticationService.Register(request.Firstname, request.Lastname, request.Email, request.Password);
+    ErrorOr<AuthenticationResult> authResult = _authenticationService.Register(request.Firstname, request.Lastname, request.Email, request.Password);
 
-    if (registerResult.IsSuccess)
-    {
-      return Ok(MapAuthResult(registerResult.Value));
-    }
-    var fristError = registerResult.Errors[0];
-    if (fristError is DuplicateEmailError)
-    {
-      return Problem(statusCode: StatusCodes.Status409Conflict, title: "email already exists 05 -- from fluent results");
-    }
-    return Problem();
-    }
+    return authResult.Match(
+      authResult => Ok(MapAuthResult(authResult)),
+      _ => Problem(statusCode: StatusCodes.Status409Conflict, title: "User already exists 01")
+    );
+  }
+  private static AuthenticationResponse MapAuthResult(AuthenticationResult authResult)
+  {
+    return new AuthenticationResponse(
+      authResult.User.Id,
+      authResult.User.FirstName,
+      authResult.User.LastName,
+      authResult.User.Email,
+      authResult.Token
+  );
+  }
 
-    private static AuthenticationResponse MapAuthResult(AuthenticationResult authResult)
-    {
-        return new AuthenticationResponse(
-          authResult.User.Id,
-          authResult.User.FirstName,
-          authResult.User.LastName,
-          authResult.User.Email,
-          authResult.Token
-      );
-    }
-
-    [HttpPost("login")]
+  [HttpPost("login")]
   public IActionResult Login(LoginRequest request)
   {
-    var authResult = _authenticationService.Login( request.Email, request.Password);
+    var authResult = _authenticationService.Login(request.Email, request.Password);
 
     var response = new AuthenticationResponse(
       authResult.User.Id,
@@ -57,7 +50,7 @@ public class AuthenticationController : ControllerBase
       authResult.User.Email,
       authResult.Token
     );
-    return Ok(response); 
+    return Ok(response);
   }
 
 }
